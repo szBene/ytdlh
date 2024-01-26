@@ -13,8 +13,12 @@ optional:
 from __future__ import annotations
 
 import argparse
+import os
 
 from ytdlp_handler import *
+
+# todo optimize imports
+# todo better formatting
 
 parser = argparse.ArgumentParser(description="Download videos with the best or chosen quality")
 
@@ -22,20 +26,21 @@ parser.add_argument("video_url", help="The url of the video to download", type=s
 parser.add_argument("-m", "--manual",
                     help="Choose the video and audio streams manually. User will be prompted to enter audio and video stream IDs",
                     action="store_true")
-parser.add_argument("-o", "--output", help="Output file name", type=str, required=False)
+parser.add_argument("-o", "--output", help="Output file name. The video title by default", type=str, required=False)
 parser.add_argument("-d", "--directory", help="Output directory", type=str, required=False)
+# todo consider adding option to manually set output format
 parser.add_argument("-r", "--resolution",
-                    help="The resolution of the video to download. The highest framerate will be preferred."
-                         "Possible values: 144, 240, 360, 480, 720, 1080, 1440, 2160 (no *p at the end)",
-                    choices=[144, 240, 360, 480, 720, 1080, 1440, 2160], type=int, required=False)
-parser.add_argument("-f", "--framerate",
-                    help="Video framerate.\nUser will be prompted to choose from available options",
+                    help="The resolution of the video to download. The highest framerate and bitrate will be preferred by default.",
+                    choices=[144, 240, 360, 480, 720, 1080, 1440, 2160], type=int, required=False)  # todo consider changing this to manual selection
+# todo implement manually selecting the following options
+parser.add_argument("-fr", "--framerate",
+                    help="Video framerate. User will be prompted to choose from available options",
                     type=str, required=False)
 parser.add_argument("-b", "--bitrate",
-                    help="The bitrate of the audio to download.\nUser will be prompted to choose from available options",
+                    help="The bitrate of the audio to download. User will be prompted to choose from available options",
                     type=str, required=False)
 parser.add_argument("-s", "--samplerate",
-                    help="The samplerate of the audio to download.\nUser will be prompted to choose from available options",
+                    help="The samplerate of the audio to download. User will be prompted to choose from available options",
                     type=str, required=False)
 
 args = parser.parse_args()
@@ -46,6 +51,19 @@ def main(arguments):
     main function
     :return:
     """
+    # todo implement manual selection
+
+    # init settings
+    DOWNLOADER_OPTIONS["path"] = arguments.directory or os.path.join(os.path.expanduser("~"), "Downloads")
+    DOWNLOADER_OPTIONS["merge_output_format"] = "mp4"
+    DOWNLOADER_OPTIONS["format"] = "mp4"
+    DOWNLOADER_OPTIONS["outtmpl"] = {
+        "default": f"{arguments.output}.%(ext)s" if arguments.output else "%(title)s [%(id)s].%(ext)s",
+        "chapter": "%(title)s - %(section_number)03d %(section_title)s [%(id)s].%(ext)s"
+    }
+
+    # init downloader
+    init_downloader(DOWNLOADER_OPTIONS)
 
     # get available streams
     video_info: dict = get_video_info(arguments.video_url)

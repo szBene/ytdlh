@@ -6,8 +6,21 @@ from __future__ import annotations
 
 import yt_dlp
 
+# todo optimize imports
+# todo better formatting
+
 # this stores the downloader settings
+# DOWNLOADER_OPTIONS: dict = {
+#     "merge_output_formats": "mp4",
+#     "final_ext": "mp4",
+#     "outtmpl": {
+#         "default": "%(title)s [%(id)s].%(ext)s",
+#         "chapter": "%(title)s - %(section_number)03d %(section_title)s [%(id)s].%(ext)s"
+#     },
+# }
 DOWNLOADER_OPTIONS: dict = {}
+DOWNLOADER: yt_dlp.YoutubeDL
+video_info_raw: dict
 
 
 # sample downloader options:
@@ -36,6 +49,15 @@ DOWNLOADER_OPTIONS: dict = {}
 # }
 
 
+def init_downloader(options: dict) -> None:
+    """
+    Initialize the yt-dlp downloader
+    :return: None
+    """
+    global DOWNLOADER
+    DOWNLOADER = yt_dlp.YoutubeDL(options)
+
+
 def get_video_info(video_url: str) -> dict:
     """
     Retrieve the available video and audio streams from the given video url
@@ -45,20 +67,23 @@ def get_video_info(video_url: str) -> dict:
 
     download_info: dict = {}
 
-    global DOWNLOADER_OPTIONS
-    with yt_dlp.YoutubeDL(DOWNLOADER_OPTIONS) as downloader:
-        video_info: dict = downloader.sanitize_info(downloader.extract_info(video_url, download=False))
+    global DOWNLOADER_OPTIONS, DOWNLOADER, video_info_raw
+    # with yt_dlp.YoutubeDL(DOWNLOADER_OPTIONS) as DOWNLOADER:
+    video_info_raw = DOWNLOADER.extract_info(video_url, download=False)  # save original info
+    video_info: dict = DOWNLOADER.sanitize_info(video_info_raw)
+    print(DOWNLOADER_OPTIONS)
 
-        download_info["id"] = video_info["id"]
-        download_info["uploader"] = f'{video_info["uploader"]} ({video_info["uploader_id"]})'
-        download_info["title"] = video_info["title"]
-        download_info["thumbnail"] = video_info["thumbnail"]
-        download_info["streams"] = video_info["formats"]  # todo remove storyboard formats
-        download_info["yt-dlp-info"] = {}
-        download_info["yt-dlp-info"]["version"] = video_info["_version"]
-        download_info["yt-dlp-info"]["protocol"] = video_info["protocol"]
-        download_info["yt-dlp-info"]["extractor"] = video_info["extractor"]
-        download_info["yt-dlp-info"]["extractor_key"] = video_info["extractor_key"]
+    # todo consider creating a custom info dict for basic info that also stores the original yt-dlp info dict
+    download_info["id"] = video_info["id"]
+    download_info["uploader"] = f'{video_info["uploader"]} ({video_info["uploader_id"]})'
+    download_info["title"] = video_info["title"]
+    download_info["thumbnail"] = video_info["thumbnail"]
+    download_info["streams"] = video_info["formats"]  # todo remove storyboard formats from this
+    download_info["yt-dlp-info"] = {}
+    download_info["yt-dlp-info"]["version"] = video_info["_version"]
+    download_info["yt-dlp-info"]["protocol"] = video_info["protocol"]
+    download_info["yt-dlp-info"]["extractor"] = video_info["extractor"]
+    download_info["yt-dlp-info"]["extractor_key"] = video_info["extractor_key"]
 
     return download_info
 
@@ -70,7 +95,7 @@ def get_best_video_streams(streams: list[dict]) -> list[dict]:
     :param streams: (dict) the available streams
     :return: (list[dict]) the best video streams for each resolution
     """
-    # todo check if stream has audio (vcodec!="none"):
+    # todo check if stream has audio (acodec!="none"):
     #  does it interfere with merging later if a different audio stream is selected?
 
     resolutions: list[int] = [144, 240, 360, 480, 720, 1080, 1440, 2160]
@@ -83,7 +108,7 @@ def get_best_video_streams(streams: list[dict]) -> list[dict]:
 
         for stream in streams:
             if stream["vcodec"] != "none" and stream["acodec"] == "none" and stream["height"] == res:
-                print("video only stream")
+                # print("video only stream")
                 # print(json.dumps(stream, indent=2))
                 if stream["vbr"] > best_bitrate:
                     if "Premium" not in stream["format"]:
@@ -104,7 +129,7 @@ def get_best_audio_streams(streams: list[dict]) -> list[dict]:
     :param streams: (dict) the available streams
     :return: (list[dict]) the best audio streams
     """
-    # todo check if stream has audio (vcodec!="none"):
+    # todo check if stream has video (vcodec!="none"):
     #  does it interfere with merging later if a different audio stream is selected?
 
     best_bitrate: dict = {}
@@ -112,8 +137,8 @@ def get_best_audio_streams(streams: list[dict]) -> list[dict]:
     premiums: list = []
 
     for stream in streams:
-        if stream["resolution"] == "audio only" and stream["ext"] != "mp4":  # todo implement better check instead of mp4
-            print("audio only stream")
+        if stream["resolution"] == "audio only" and stream["ext"] != "mp4":  # todo implement better check for audio streams
+            # print("audio only stream")
             # print(json.dumps(stream, indent=2))
             if stream["abr"] >= best_bitrate.get("abr", 0):
                 if "Premium" not in stream["format"]:
