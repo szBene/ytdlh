@@ -97,17 +97,6 @@ def get_best_video_streams(streams: list[dict]) -> list[dict]:
     return best_streams
 
 
-def filter_video_streams(streams: list[dict], resolution: str | None = None, framerate: str | None = None) -> dict:
-    """
-    Filters the given video streams by resolution and framerate (if provided)
-    :param streams: the list of available streams
-    :param resolution: the desired resolution
-    :param framerate: the desired framerate
-    :return: the list of video streams that match the given resolution and framerate
-    """
-    pass
-
-
 def get_best_audio_streams(streams: list[dict]) -> list[dict]:
     """
     Returns the best audio streams with the highest bitrate and highest samplerate.
@@ -142,6 +131,49 @@ def get_best_audio_streams(streams: list[dict]) -> list[dict]:
                     premiums.append(stream)
 
     return [best_bitrate, best_samplerate] + premiums
+
+
+def filter_video_streams(streams: list[dict], resolution: str | None = None, framerate: str | None = None) -> dict:
+    """
+    Filters the given video streams by resolution and framerate (if provided)
+    :param streams: the list of available streams
+    :param resolution: the desired resolution
+    :param framerate: the desired framerate
+    :return: the list of video streams that match the given resolution and framerate
+    """
+
+    best_stream: dict = {}
+    matching_streams: list = []
+
+    for i, stream in enumerate(streams):
+        if "unavailable" not in stream["format_id"]:
+            matching_streams.append(stream)
+
+    if resolution:
+        matching_streams = [stream for stream in matching_streams if stream["height"] == resolution]
+        if not matching_streams:
+            print(f"No streams with resolution {resolution}p found")
+
+    if framerate:
+        matching_streams = [stream for stream in matching_streams if stream["fps"] == framerate]
+        if not matching_streams:
+            print(f"No streams with framerate {framerate}fps found")
+
+    if len(matching_streams) > 1:
+        # auto select best quality stream based on bitrate, exclude premium streams
+        best_bitrate: float = 0
+        for stream in matching_streams:
+            if stream["vbr"] > best_bitrate and "Premium" not in stream["format"]:
+                best_bitrate = stream["vbr"]
+                best_stream = stream
+        return best_stream
+
+    elif len(matching_streams) == 1:
+        return matching_streams[0]
+
+    else:
+        print("No matching streams found")
+        return {}
 
 
 def filter_audio_streams(streams: list[dict], bitrate: str | None = None, samplerate: str | None = None) -> dict:
