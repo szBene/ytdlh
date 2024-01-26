@@ -63,17 +63,66 @@ def get_video_info(video_url: str) -> dict:
     return download_info
 
 
-def get_best_video_stream(streams: list[dict], resolution: str | None = None) -> dict:
+def get_best_video_streams(streams: dict) -> list[dict]:
     """
-    returns the best video stream (of the given resolution, if provided)
+    Returns the best video streams of each resolution with the highest bitrate
+    Ignores streams with audio
+    :param streams: (dict) the available streams
+    :return: (list[dict]) the best video streams for each resolution
+    """
+    # todo check if stream has audio (vcodec!="none"):
+    #  does it interfere with merging later if a different audio stream is selected?
+
+    resolutions = [144, 240, 360, 480, 720, 1080, 1440, 2160]
+
+    # preallocate list. premium streams are appended to the end of the list
+    best_streams: list[dict] = [{"format_id": f"{r}p unavailable"} for r in resolutions]
+
+    for i, res in enumerate(resolutions):
+        best_bitrate: float = 0
+
+        for stream in streams:
+            if stream["vcodec"] != "none" and stream["acodec"] == "none" and stream["height"] == res:
+                print("video only stream")
+                # print(json.dumps(stream, indent=2))
+                if stream["vbr"] > best_bitrate:
+                    if "Premium" not in stream["format"]:
+                        # print("better bitrate")
+                        best_bitrate = stream["abr"]
+                        best_streams[i] = stream
+                    else:
+                        # print("premium")
+                        best_streams.append(stream)
+
+    return best_streams
+
+
+def filter_video_streams(streams: list[dict], resolution: str | None = None, framerate: str | None = None) -> dict:
+    """
+    Filters the given video streams by resolution and framerate (if provided)
+    :param streams: the list of available streams
+    :param resolution: the desired resolution
+    :param framerate: the desired framerate
+    :return: the list of video streams that match the given resolution and framerate
     """
     pass
 
 
-def get_best_audio_stream(streams: list[dict], bitrate: str | None = None, samplerate: str | None = None) -> dict:
+def get_best_audio_streams(streams: list[dict], bitrate: str | None = None, samplerate: str | None = None) -> dict:
     """
     returns the best audio stream (of the given bitrate and samplerate, if provided)
     if the best bitrate and best samplerate are not the same stream, the best bitrate stream is prioritized
+    """
+    pass
+
+
+def filter_audio_streams(streams: list[dict], bitrate: str | None = None, samplerate: str | None = None) -> dict:
+    """
+    Filters the given audio streams by bitrate and samplerate (if provided)
+    :param streams: the list of available streams
+    :param bitrate: the desired bitrate
+    :param samplerate: the desired samplerate
+    :return: the list of audio streams that match the given bitrate and samplerate
     """
     pass
 
