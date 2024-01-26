@@ -14,16 +14,18 @@ from __future__ import annotations
 
 import argparse
 
+from ytdlp_handler import *
+
 parser = argparse.ArgumentParser(description="Download videos with the best or chosen quality")
 
-parser.add_argument("video_url", help="The url of the video to download", type=str, required=True)
+parser.add_argument("video_url", help="The url of the video to download", type=str)
 parser.add_argument("-m", "--manual",
-                    help="Choose the video and audio streams manually.\nUser will be prompted to enter audio and video stream IDs",
+                    help="Choose the video and audio streams manually. User will be prompted to enter audio and video stream IDs",
                     action="store_true")
 parser.add_argument("-o", "--output", help="Output file name", type=str, required=False)
 parser.add_argument("-d", "--directory", help="Output directory", type=str, required=False)
 parser.add_argument("-r", "--resolution",
-                    help="The resolution of the video to download. The highest framerate will be preferred\n"
+                    help="The resolution of the video to download. The highest framerate will be preferred."
                          "Possible values: 144p, 240p, 360p, 480p, 720p, 1080p, 1440p, 2160p",
                     choices=['144p', '240p', '360p', '480p', '720p', '1080p', '1440p', '2160p'], type=str, required=False)
 parser.add_argument("-f", "--framerate",
@@ -39,35 +41,6 @@ parser.add_argument("-s", "--samplerate",
 args = parser.parse_args()
 
 
-def get_available_streams(video_url: str) -> list[dict]:
-    """
-    returns a list of available streams for the video using yt-dlp
-    """
-    pass
-
-
-def get_best_video_stream(streams: list[dict], resolution: str | None = None) -> dict:
-    """
-    returns the best video stream (of the given resolution, if provided)
-    """
-    pass
-
-
-def get_best_audio_stream(streams: list[dict], bitrate: str | None = None, samplerate: str | None = None) -> dict:
-    """
-    returns the best audio stream (of the given bitrate and samplerate, if provided)
-    if the best bitrate and best samplerate are not the same stream, the best bitrate stream is prioritized
-    """
-    pass
-
-
-def download_video(video_url: str, video_stream: dict, audio_stream: dict, output_file: str | None = None, download_dir: str | None = None):
-    """
-    downloads the video using yt-dlp
-    """
-    pass
-
-
 def main(arguments):
     """
     main function
@@ -75,7 +48,10 @@ def main(arguments):
     """
 
     # get available streams
-    streams = get_available_streams(arguments.video_url)
+    video_info: dict = get_video_info(arguments.video_url)
+
+    # get available streams
+    streams = video_info["streams"]
 
     # get best video stream
     video_stream = get_best_video_stream(streams, arguments.resolution)
