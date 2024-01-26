@@ -51,13 +51,13 @@ def main(arguments):
     video_info: dict = get_video_info(arguments.video_url)
 
     # get available streams
-    streams: dict = video_info["streams"]
+    streams: list[dict] = video_info["streams"]
 
     # get best video streams
     best_video_streams: list[dict] = get_best_video_streams(streams)
 
     # get best audio streams
-    best_audio_streams = get_best_audio_streams(streams, arguments.bitrate, arguments.samplerate)
+    best_audio_streams = get_best_audio_streams(streams)
 
     # selected audio and video streams
     video_stream: dict = filter_video_streams(best_video_streams, arguments.resolution, arguments.framerate)

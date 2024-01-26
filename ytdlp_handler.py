@@ -63,17 +63,17 @@ def get_video_info(video_url: str) -> dict:
     return download_info
 
 
-def get_best_video_streams(streams: dict) -> list[dict]:
+def get_best_video_streams(streams: list[dict]) -> list[dict]:
     """
     Returns the best video streams of each resolution with the highest bitrate
-    Ignores streams with audio
+    !!! Ignores streams with audio for now. !!!
     :param streams: (dict) the available streams
     :return: (list[dict]) the best video streams for each resolution
     """
     # todo check if stream has audio (vcodec!="none"):
     #  does it interfere with merging later if a different audio stream is selected?
 
-    resolutions = [144, 240, 360, 480, 720, 1080, 1440, 2160]
+    resolutions: list[int] = [144, 240, 360, 480, 720, 1080, 1440, 2160]
 
     # preallocate list. premium streams are appended to the end of the list
     best_streams: list[dict] = [{"format_id": f"{r}p unavailable"} for r in resolutions]
@@ -108,12 +108,40 @@ def filter_video_streams(streams: list[dict], resolution: str | None = None, fra
     pass
 
 
-def get_best_audio_streams(streams: list[dict], bitrate: str | None = None, samplerate: str | None = None) -> dict:
+def get_best_audio_streams(streams: list[dict]) -> list[dict]:
     """
-    returns the best audio stream (of the given bitrate and samplerate, if provided)
-    if the best bitrate and best samplerate are not the same stream, the best bitrate stream is prioritized
+    Returns the best audio streams with the highest bitrate and highest samplerate.
+    !!! Ignores streams with video for now. !!!
+    :param streams: (dict) the available streams
+    :return: (list[dict]) the best audio streams
     """
-    pass
+    # todo check if stream has audio (vcodec!="none"):
+    #  does it interfere with merging later if a different audio stream is selected?
+
+    best_bitrate: dict = {}
+    best_samplerate: dict = {}
+    premiums: list = []
+
+    for stream in streams:
+        if stream["resolution"] == "audio only" and stream["ext"] != "mp4":  # todo implement better check instead of mp4
+            print("audio only stream")
+            # print(json.dumps(stream, indent=2))
+            if stream["abr"] >= best_bitrate.get("abr", 0):
+                if "Premium" not in stream["format"]:
+                    # print("better bitrate")
+                    best_bitrate = stream
+                else:
+                    # print("premium")
+                    premiums.append(stream)
+            if stream["asr"] >= best_samplerate.get("asr", 0) and stream["abr"] >= best_samplerate.get("abr", 0):
+                if "Premium" not in stream["format"]:
+                    # print("better samplerate")
+                    best_samplerate = stream
+                else:
+                    # print("premium")
+                    premiums.append(stream)
+
+    return [best_bitrate, best_samplerate] + premiums
 
 
 def filter_audio_streams(streams: list[dict], bitrate: str | None = None, samplerate: str | None = None) -> dict:
