@@ -184,7 +184,39 @@ def filter_audio_streams(streams: list[dict], bitrate: str | None = None, sample
     :param samplerate: the desired samplerate
     :return: the list of audio streams that match the given bitrate and samplerate
     """
-    pass
+
+    best_stream: dict = {}
+    matching_streams: list = []
+
+    for i, stream in enumerate(streams):
+        if "unavailable" not in stream["format_id"]:
+            matching_streams.append(stream)
+
+    if bitrate:
+        matching_streams = [stream for stream in matching_streams if stream["abr"] == bitrate]
+        if not matching_streams:
+            print(f"No streams with bitrate {bitrate}kbps found")
+
+    if samplerate:
+        matching_streams = [stream for stream in matching_streams if stream["asr"] == samplerate]
+        if not matching_streams:
+            print(f"No streams with samplerate {samplerate}Hz found")
+
+    if len(matching_streams) > 1:
+        # auto select best quality stream based on bitrate, exclude premium streams
+        best_bitrate: float = 0
+        for stream in matching_streams:
+            if stream["abr"] > best_bitrate and "Premium" not in stream["format"]:
+                best_bitrate = stream["abr"]
+                best_stream = stream
+        return best_stream
+
+    elif len(matching_streams) == 1:
+        return matching_streams[0]
+
+    else:
+        print("No matching streams found")
+        return {}
 
 
 def download_video(video_url: str, video_stream: dict, audio_stream: dict, output_file: str | None = None, download_dir: str | None = None):

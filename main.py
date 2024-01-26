@@ -64,7 +64,7 @@ def main(arguments):
     audio_stream: dict = filter_audio_streams(best_audio_streams, arguments.bitrate, arguments.samplerate)
 
     # download video
-    download_video(arguments.video_url, best_video_streams, best_audio_streams, arguments.output, arguments.directory)
+    download_video(arguments.video_url, video_stream, audio_stream, arguments.output, arguments.directory)
 
 
 if __name__ == "__main__":
