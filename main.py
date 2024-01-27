@@ -61,7 +61,7 @@ def main(arguments):
     downloader_options: dict = {
         "verbose": arguments.verbose,
         "merge_output_format": arguments.output_format or "mp4",
-        "path": arguments.directory or os.path.join(os.path.expanduser("~"), "Downloads\\"),
+        "path": arguments.directory or os.path.join(os.path.expanduser("~"), "Downloads"),
         "outtmpl": {
             "default": f"{arguments.output}.%(ext)s" if arguments.output else "%(title)s [%(id)s].%(ext)s",
             "chapter": "%(title)s - %(section_number)03d %(section_title)s [%(id)s].%(ext)s"
@@ -88,7 +88,7 @@ def main(arguments):
     audio_stream: dict = filter_audio_streams(best_audio_streams, arguments.bitrate, arguments.samplerate)
 
     # download video
-    download_video(arguments.video_url, video_stream, audio_stream)
+    download_video(arguments.video_url, video_stream["format_id"], audio_stream["format_id"], )
 
 
 if __name__ == "__main__":
