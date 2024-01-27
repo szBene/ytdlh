@@ -1,6 +1,7 @@
 console_outputs
 console_outputs/**
 videos.json
+ytdlh-build.zip
 
 ### venv template
 # Virtualenv
