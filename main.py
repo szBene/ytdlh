@@ -11,12 +11,15 @@ from ytdlp_handler import (download_video, filter_audio_streams, filter_video_st
                            get_best_video_streams,
                            get_video_info, init_downloader)
 
+VERSION = "ytdlh: beta-0.1.0; yt-dlp: 2022.12.30; pyinstaller: 6.3.0; python: 3.11.7"
+
 # todo add longer help message to help users understand what the script does
 
 parser = ArgumentParser(description="Download videos with the best or chosen quality")
 
 parser.add_argument("video_url", help="The url of the video to download", type=str)
-parser.add_argument("-v", "--verbose", help="Verbose output", action="store_true")
+parser.add_argument("--version", help="Show the version of the script", action="version", version=VERSION)
+parser.add_argument("--verbose", help="Verbose output", action="store_true")
 parser.add_argument("-o", "--output", help="Output file name. Default is the video title", type=str, required=False)
 parser.add_argument("-d", "--directory", help="Set output directory. Default is user/Downloads", type=str,
                     required=False)
