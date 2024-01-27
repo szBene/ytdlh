@@ -4,30 +4,30 @@ A simple video downloader helper for yt-dlp
 
 ## Usage
 
-- Get the latest version of ytdlp.exe from the [releases](https://github.com/szBene/ytdlh/releases)
+- Get the latest version of `ytdlp-build.zip` from [releases](https://github.com/szBene/ytdlh/releases)
 
-- Put it into your user directory (`C:\Users\username`) for easy access (optional, but your terminal will open in
-  this directory by default)
+- Extract the contents into your user directory (`C:\Users\username`) for easy access (optional, but your terminal will
+  open in this directory by default)
 
 - Open your terminal (cmd, powershell, etc.)
 
-- Run `ytdlh.exe`:
+- Run `ytdlh.bat`:
 
 ```bash
-ytdlh.exe [options] [url]
+ytdlh.bat [options] [url]
 ```
 
-Note: `[options]` are not required, `[url]` is, except for `--help` and `--version`
+Note: `[options]` are not required, `[url]` is, except when using `--help` and `--version`
 
 For example:
 
 ```bash
-ytdlh.exe https://www.youtube.com/watch?v=dQw4w9WgXcQ
+ytdlh.bat https://www.youtube.com/watch?v=dQw4w9WgXcQ
 ```
 
-will download a good quality video into your Downloads directory
+will download a good quality mp4 video file into your Downloads directory. Its name will be the title of the video.
 
-Run `ytdlh.exe --help` for info on the available options
+Run `ytdlh.bat --help` for info on the available options
 
 ___
 
@@ -59,19 +59,22 @@ After [setting up for development](#set-up-for-development-windows), run the fol
 pyinstaller -c --onefile --name ytdlh.exe main.py ytdlp_handler.py
 ```
 
+This command will create a portable, self-contained executable of ytdlh.
+
 You will find the executable in the `dist` directory. From there, follow the instructions in the [Usage](#usage)
-section.
+section. However, instead of `ytdlh.bat`, you will have to run `ytdlh.exe`.
 
 **NOTE:** this command, specifically the `--onefile` option, might build an executable that will result in a false
 positive detection by your antivirus.
 This happened to me with release [0.1.0](https://github.com/szBene/ytdlh/releases/tag/ytdlh-beta-0.1). In the
 release notes, I included the Virustotal scan results of the executable.
 
-I also created a build script, that doesn't use the `--onefile` option. It will create a zip file of the built
+I also created a [build script](build.bat), that doesn't use the `--onefile` option. It will create a zip file of the
+built
 executable in the project's root directory. To use the ytdlh executable created with this method, you have two
 options:
 
-1. With the runner script:
+1. With the [runner](ytdlh.bat) script:
     - Extract the contents of the zip file directly into your user directory (`C:\Users\username`)
     - Open your terminal and run `ytdlh.bat` just like you would run `ytdlh.exe`
 2. Without the runner script:
@@ -105,5 +108,5 @@ Contributions are also welcome.
 
 For any bugs or issues you find, please open an issue. I will try to fix them as soon as possible.
 
-Don't forget to include the version of ytdlh (run `ytdlh.exe --version`) and the console output of the program.
+Don't forget to include the version of ytdlh and the entire console output of the program.
 Check back frequently, in case I have any followup questions or updates.
