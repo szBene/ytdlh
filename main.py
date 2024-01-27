@@ -64,7 +64,8 @@ def main(arguments):
             "chapter": "%(title)s - %(section_number)03d %(section_title)s [%(id)s].%(ext)s"
         }
     }
-    print(downloader_options["paths"]["temp"])
+    print(f"Using {downloader_options['paths']['temp']} as temporary working directory")
+    print(f"The video will be downloaded to {downloader_options['paths']['home']}")
 
     # init downloader
     init_downloader(downloader_options)

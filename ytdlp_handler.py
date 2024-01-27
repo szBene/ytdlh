@@ -70,11 +70,8 @@ def get_best_video_streams(streams: list[dict]) -> list[dict]:
         for stream in streams:
             if stream["vcodec"] != "none" and stream["acodec"] == "none" and stream["height"] == res:
                 if stream["vbr"] > best_bitrate:
-                    if "Premium" not in stream["format"]:
-                        best_bitrate = stream["abr"]
-                        best_streams[i] = stream
-                    else:
-                        best_streams.append(stream)
+                    best_bitrate = stream["abr"]
+                    best_streams[i] = stream
 
     return best_streams
 
@@ -94,15 +91,9 @@ def get_best_audio_streams(streams: list[dict]) -> list[dict]:
     for stream in streams:
         if stream["resolution"] == "audio only" and stream["ext"] != "mp4":
             if stream["abr"] >= best_bitrate.get("abr", 0):
-                if "Premium" not in stream["format"]:
-                    best_bitrate = stream
-                else:
-                    premiums.append(stream)
+                best_bitrate = stream
             if stream["asr"] >= best_samplerate.get("asr", 0) and stream["abr"] >= best_samplerate.get("abr", 0):
-                if "Premium" not in stream["format"]:
-                    best_samplerate = stream
-                else:
-                    premiums.append(stream)
+                best_samplerate = stream
 
     return [best_bitrate, best_samplerate] + premiums
 
@@ -137,7 +128,7 @@ def filter_video_streams(streams: list[dict], resolution: str | None = None, fra
         # auto select best quality stream based on bitrate, exclude premium streams
         best_bitrate: float = 0
         for stream in matching_streams:
-            if stream["vbr"] > best_bitrate and "Premium" not in stream["format"]:
+            if stream["vbr"] > best_bitrate:
                 best_bitrate = stream["vbr"]
                 best_stream = stream
         return best_stream
@@ -180,7 +171,7 @@ def filter_audio_streams(streams: list[dict], bitrate: str | None = None, sample
         # auto select best quality stream based on bitrate, exclude premium streams
         best_bitrate: float = 0
         for stream in matching_streams:
-            if stream["abr"] > best_bitrate and "Premium" not in stream["format"]:
+            if stream["abr"] > best_bitrate:
                 best_bitrate = stream["abr"]
                 best_stream = stream
         return best_stream
