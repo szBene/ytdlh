@@ -1,51 +1,17 @@
 """
-yt-dlp handler stuff
+yt-dlp handler
 """
+
+# todo implement better check method for video only and audio only streams
+# todo check if audio stream interferes with video that already has audio and vice versa
+#  and remove exclusions when selecting best streams
 
 from __future__ import annotations
 
-import yt_dlp
+from yt_dlp import YoutubeDL
 
-# todo optimize imports
-# todo better formatting
-
-# this stores the downloader settings
-# DOWNLOADER_OPTIONS: dict = {
-#     "merge_output_formats": "mp4",
-#     "final_ext": "mp4",
-#     "outtmpl": {
-#         "default": "%(title)s [%(id)s].%(ext)s",
-#         "chapter": "%(title)s - %(section_number)03d %(section_title)s [%(id)s].%(ext)s"
-#     },
-# }
-DOWNLOADER: yt_dlp.YoutubeDL
+DOWNLOADER: YoutubeDL
 video_info_raw: dict
-
-
-# sample downloader options:
-# {
-#     "compat_opts": [],
-#     "http_headers": {
-#         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36",
-#         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-#         "Accept-Language": "en-us,en;q=0.5",
-#         "Sec-Fetch-Mode": "navigate"
-#     },
-#     "forceprint": {},
-#     "print_to_file": {},
-#     "outtmpl": {
-#         "default": "%(title)s [%(id)s].%(ext)s",
-#         "chapter": "%(title)s - %(section_number)03d %(section_title)s [%(id)s].%(ext)s"
-#     },
-#     "epoch": 1706261823,
-#     "_type": "video",
-#     "_version": {
-#         "version": "2023.12.30",
-#         "current_git_head": null,
-#         "release_git_head": "f10589e3453009bb523f55849bba144c9b91cf2a",
-#         "repository": "yt-dlp/yt-dlp"
-#     }
-# }
 
 
 def init_downloader(options: dict) -> None:
@@ -53,8 +19,9 @@ def init_downloader(options: dict) -> None:
     Initialize the yt-dlp downloader
     :return: None
     """
+
     global DOWNLOADER
-    DOWNLOADER = yt_dlp.YoutubeDL(options)
+    DOWNLOADER = YoutubeDL(options)
 
 
 def get_video_info(video_url: str) -> dict:
@@ -70,12 +37,11 @@ def get_video_info(video_url: str) -> dict:
     video_info_raw = DOWNLOADER.extract_info(video_url, download=False)  # save original info
     video_info: dict = DOWNLOADER.sanitize_info(video_info_raw)  # make info json serializable
 
-    # todo consider creating a custom info dict for basic info for checking formats
     download_info["id"] = video_info["id"]
     download_info["uploader"] = f'{video_info["uploader"]} ({video_info["uploader_id"]})'
     download_info["title"] = video_info["title"]
     download_info["thumbnail"] = video_info["thumbnail"]
-    download_info["streams"] = video_info["formats"]  # todo remove storyboard formats from this
+    download_info["streams"] = video_info["formats"]
     download_info["yt-dlp-info"] = {}
     download_info["yt-dlp-info"]["version"] = video_info["_version"]
     download_info["yt-dlp-info"]["protocol"] = video_info["protocol"]
@@ -92,8 +58,6 @@ def get_best_video_streams(streams: list[dict]) -> list[dict]:
     :param streams: (dict) the available streams
     :return: (list[dict]) the best video streams for each resolution
     """
-    # todo check if stream has audio (acodec!="none"):
-    #  does it interfere with merging later if a different audio stream is selected?
 
     resolutions: list[int] = [144, 240, 360, 480, 720, 1080, 1440, 2160]
 
@@ -105,15 +69,11 @@ def get_best_video_streams(streams: list[dict]) -> list[dict]:
 
         for stream in streams:
             if stream["vcodec"] != "none" and stream["acodec"] == "none" and stream["height"] == res:
-                # print("video only stream")
-                # print(json.dumps(stream, indent=2))
                 if stream["vbr"] > best_bitrate:
                     if "Premium" not in stream["format"]:
-                        # print("better bitrate")
                         best_bitrate = stream["abr"]
                         best_streams[i] = stream
                     else:
-                        # print("premium")
                         best_streams.append(stream)
 
     return best_streams
@@ -126,30 +86,22 @@ def get_best_audio_streams(streams: list[dict]) -> list[dict]:
     :param streams: (dict) the available streams
     :return: (list[dict]) the best audio streams
     """
-    # todo check if stream has video (vcodec!="none"):
-    #  does it interfere with merging later if a different audio stream is selected?
 
     best_bitrate: dict = {}
     best_samplerate: dict = {}
     premiums: list = []
 
     for stream in streams:
-        if stream["resolution"] == "audio only" and stream["ext"] != "mp4":  # todo implement better check for audio streams
-            # print("audio only stream")
-            # print(json.dumps(stream, indent=2))
+        if stream["resolution"] == "audio only" and stream["ext"] != "mp4":
             if stream["abr"] >= best_bitrate.get("abr", 0):
                 if "Premium" not in stream["format"]:
-                    # print("better bitrate")
                     best_bitrate = stream
                 else:
-                    # print("premium")
                     premiums.append(stream)
             if stream["asr"] >= best_samplerate.get("asr", 0) and stream["abr"] >= best_samplerate.get("abr", 0):
                 if "Premium" not in stream["format"]:
-                    # print("better samplerate")
                     best_samplerate = stream
                 else:
-                    # print("premium")
                     premiums.append(stream)
 
     return [best_bitrate, best_samplerate] + premiums
@@ -253,13 +205,7 @@ def download_video(video_url: str, video_stream_id: str, audio_stream_id: str) -
 
     DOWNLOADER.params["format"] = f"{video_stream_id}+{audio_stream_id}"
     DOWNLOADER.params["requested_format"] = [video_stream_id, audio_stream_id]
-    DOWNLOADER.__init__(DOWNLOADER.params)  # reload, format selection doesnt work otherwise
+    DOWNLOADER.__init__(DOWNLOADER.params)  # "reload", format selection does not work otherwise
 
-    # todo fix download format selection
-    # todo fix download location
+    # download
     DOWNLOADER.download([video_url])
-
-    # print(f"{json.dumps(DOWNLOADER.sanitize_info(DOWNLOADER.params), indent=2)=}")
-
-    # todo add progress hooks
-    # todo do this without redownloading video info
