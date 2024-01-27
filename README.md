@@ -2,8 +2,6 @@
 
 A simple video downloader helper for yt-dlp
 
-___
-
 ## Usage
 
 - Get the latest version of ytdlp.exe from the [releases](https://github.com/szBene/ytdlh/releases)
