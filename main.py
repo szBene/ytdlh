@@ -20,7 +20,7 @@ parser.add_argument("-v", "--verbose", help="Verbose output", action="store_true
 parser.add_argument("-o", "--output", help="Output file name. Default is the video title", type=str, required=False)
 parser.add_argument("-d", "--directory", help="Set output directory. Default is user/Downloads", type=str,
                     required=False)
-parser.add_argument("-of", "--output-format", help="The output format of the video", type=str, required=False)
+parser.add_argument("-f", "--output-format", help="The output format of the video", type=str, required=False)
 # todo implement the following options
 # parser.add_argument("-m", "--manual", help="Choose the video and audio streams manually. "
 #                                            "User will be prompted to enter audio and video stream IDs",
@@ -79,8 +79,8 @@ def main(arguments):
     best_audio_streams = get_best_audio_streams(streams)
 
     # selected audio and video streams
-    video_stream: dict = filter_video_streams(best_video_streams, arguments.resolution, arguments.framerate)
-    audio_stream: dict = filter_audio_streams(best_audio_streams, arguments.bitrate, arguments.samplerate)
+    video_stream: dict = filter_video_streams(best_video_streams)  # , arguments.resolution, arguments.framerate)
+    audio_stream: dict = filter_audio_streams(best_audio_streams)  # , arguments.bitrate, arguments.samplerate)
 
     # download video
     download_video(arguments.video_url, video_stream["format_id"], audio_stream["format_id"])
