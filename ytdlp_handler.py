@@ -18,7 +18,6 @@ import yt_dlp
 #         "chapter": "%(title)s - %(section_number)03d %(section_title)s [%(id)s].%(ext)s"
 #     },
 # }
-DOWNLOADER_OPTIONS: dict = {}
 DOWNLOADER: yt_dlp.YoutubeDL
 video_info_raw: dict
 
@@ -67,13 +66,11 @@ def get_video_info(video_url: str) -> dict:
 
     download_info: dict = {}
 
-    global DOWNLOADER_OPTIONS, DOWNLOADER, video_info_raw
-    # with yt_dlp.YoutubeDL(DOWNLOADER_OPTIONS) as DOWNLOADER:
+    global DOWNLOADER, video_info_raw
     video_info_raw = DOWNLOADER.extract_info(video_url, download=False)  # save original info
-    video_info: dict = DOWNLOADER.sanitize_info(video_info_raw)
-    print(DOWNLOADER_OPTIONS)
+    video_info: dict = DOWNLOADER.sanitize_info(video_info_raw)  # make info json serializable
 
-    # todo consider creating a custom info dict for basic info that also stores the original yt-dlp info dict
+    # todo consider creating a custom info dict for basic info for checking formats
     download_info["id"] = video_info["id"]
     download_info["uploader"] = f'{video_info["uploader"]} ({video_info["uploader_id"]})'
     download_info["title"] = video_info["title"]
@@ -244,8 +241,28 @@ def filter_audio_streams(streams: list[dict], bitrate: str | None = None, sample
         return {}
 
 
-def download_video(video_url: str, video_stream: dict, audio_stream: dict, output_file: str | None = None, download_dir: str | None = None):
+def download_video(video_url: str, video_stream: dict, audio_stream: dict):
     """
-    downloads the video using yt-dlp
+    Download the video with the selected streams to the given directory with the given filename
+    :param video_url: the url of the video
+    :param video_stream: (dict) the selected video stream
+    :param audio_stream: (dict) the selected audio stream
+    :return: None
     """
-    pass
+    global DOWNLOADER
+    # todo download the selected video and audio streams
+    DOWNLOADER.params["format"] = f"{video_stream['format_id']}+{audio_stream['format_id']}"
+
+    # print(f"{json.dumps(DOWNLOADER.sanitize_info(DOWNLOADER.params), indent=2)=}")
+
+    # print(f'{json.dumps(video_stream, indent=2)}')
+    # print(f'{json.dumps(audio_stream, indent=2)}')
+
+    # todo fix download format selection
+    # todo fix download location
+    DOWNLOADER.download([video_url])
+
+    # print(f"{json.dumps(DOWNLOADER.sanitize_info(DOWNLOADER.params), indent=2)=}")
+
+    # todo add progress hooks
+    # todo do this without redownloading video info
