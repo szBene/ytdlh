@@ -53,17 +53,35 @@ pip install -r requirements.txt
 
 Don't trust the release version? No problem, you can build it yourself!
 
-After [setting up for development](#set-up-for-development-windows), run the following command:
+After [setting up for development](#set-up-for-development-windows), run the following command in your terminal:
 
 ```bash
 pyinstaller -c --onefile --name ytdlh.exe main.py ytdlp_handler.py
 ```
 
-You will find the executable in the `dist` directory. from there, follow the instructions in the [Usage](#usage) section
+You will find the executable in the `dist` directory. From there, follow the instructions in the [Usage](#usage)
+section.
+
+**NOTE:** this command, specifically the `--onefile` option, might build an executable that will result in a false
+positive detection by your antivirus.
+This happened to me with release [0.1.0](https://github.com/szBene/ytdlh/releases/tag/ytdlh-beta-0.1). In the
+release notes, I included the Virustotal scan results of the executable.
+
+I also created a build script, that doesn't use the `--onefile` option. It will create a zip file of the built
+executable in the project's root directory. To use the ytdlh executable created with this method, you have two
+options:
+
+1. With the runner script:
+    - Extract the contents of the zip file directly into your user directory (`C:\Users\username`)
+    - Open your terminal and run `ytdlh.bat` just like you would run `ytdlh.exe`
+2. Without the runner script:
+    - Extract the zip file into a directory of your choice
+    - Move the contents of the `ytdlh` directory into your user directory (`C:\Users\username`)
+    - Open your terminal and run `ytdlh.exe`
 
 ## Updates
 
-This tool does not check for updates. for that, come back here from time to time
+This tool does not check for updates. For that, come back here from time to time
 
 ### Feature updates
 
