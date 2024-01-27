@@ -1,5 +1,7 @@
 @echo off
+setlocal
 
+::set current dorectory
 set "output_name=ytdlh"
 
 :: Get the directory of the batch file
@@ -19,3 +21,5 @@ if ERRORLEVEL 0 (
     del /q %script_dir%%output_name%.spec
     echo The finished build is located at %script_dir%ytdlh-build.zip
 )
+
+endlocal
