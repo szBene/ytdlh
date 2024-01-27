@@ -8,9 +8,10 @@ A simple video downloader helper for yt-dlp
 
 - Extract the contents into your user directory (`C:\Users\username`) for easy access (optional, but your terminal will
   open in this directory by default)
-
+- Or use the install script to install ytdlh into your user directory:
+    - Run `install_ytdlh.bat` if you have the `ytdlp-build.zip` file in the same directory as the installer script
+    - Or drag the `ytdlp-build.zip` file onto the `install_ytdlh.bat` file
 - Open your terminal (cmd, powershell, etc.)
-
 - Run `ytdlh.bat`:
 
 ```bash
@@ -29,6 +30,9 @@ will download a good quality mp4 video file into your Downloads directory. Its n
 
 Run `ytdlh.bat --help` for info on the available options
 
+If you would like to uninstall ytdlh, run `uninstall_ytdlh.bat`. This will delete the `ytdlh.bat` file and the `ytdlh`
+directory from your user directory.
+
 ___
 
 ## Set up for development (Windows)
@@ -38,6 +42,7 @@ Prerequisites:
 - [Python 3.11.7](https://www.python.org/downloads/release/python-3117/)
     - make sure to check the "Add Python to PATH" option during installation
 - [Git](https://git-scm.com/downloads)
+- powershell (for using the build script)
 
 ```bash
 git clone https://github.com/szBene/ytdlh.git
