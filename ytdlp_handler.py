@@ -4,8 +4,6 @@ yt-dlp handler stuff
 
 from __future__ import annotations
 
-import os
-
 import yt_dlp
 
 # todo optimize imports
@@ -243,20 +241,18 @@ def filter_audio_streams(streams: list[dict], bitrate: str | None = None, sample
         return {}
 
 
-def download_video(video_url: str, video_stream_id: str, audio_stream_id: str, filename: str | None = None, directory: str | None = None) -> None:
+def download_video(video_url: str, video_stream_id: str, audio_stream_id: str) -> None:
     """
     Download the video with the selected streams to the given directory with the given filename
     :param video_url: the url of the video
-    :param video_stream_id: (str) if og the selected video stream
-    :param audio_stream_id: (str) id of the selected audio stream
-    :param filename: (str) the output filename of the video
-    :param directory: (str) the output directory of the video
+    :param video_stream_id: (str) ID of the selected video stream
+    :param audio_stream_id: (str) ID of the selected audio stream
     :return: None
     """
     global DOWNLOADER
+
     DOWNLOADER.params["format"] = f"{video_stream_id}+{audio_stream_id}"
-    DOWNLOADER.params["outtmpl"]["default"] = f"{filename}.%(ext)s" if filename else DOWNLOADER.params['outtmpl']['default']
-    DOWNLOADER.params["path"] = directory or os.getcwd()
+    DOWNLOADER.params["requested_format"] = [video_stream_id, audio_stream_id]
     DOWNLOADER.__init__(DOWNLOADER.params)  # reload, format selection doesnt work otherwise
 
     # todo fix download format selection

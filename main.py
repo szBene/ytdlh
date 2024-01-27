@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import os
+import tempfile
 
 from ytdlp_handler import *
 
@@ -61,12 +62,16 @@ def main(arguments):
     downloader_options: dict = {
         "verbose": arguments.verbose,
         "merge_output_format": arguments.output_format or "mp4",
-        "path": arguments.directory or os.path.join(os.path.expanduser("~"), "Downloads"),
+        "paths": {
+            "home": arguments.directory or os.path.join(os.path.expanduser("~"), "Downloads"),
+            "temp": tempfile.gettempdir()  # os temp directory
+        },
         "outtmpl": {
-            "default": f"{arguments.output}.%(ext)s" if arguments.output else "%(title)s [%(id)s].%(ext)s",
+            "default": f"{arguments.output}.%(ext)s" if arguments.output else "%(title)s.%(ext)s",
             "chapter": "%(title)s - %(section_number)03d %(section_title)s [%(id)s].%(ext)s"
         }
     }
+    print(downloader_options["paths"]["temp"])
 
     # init downloader
     init_downloader(downloader_options)
