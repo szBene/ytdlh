@@ -65,7 +65,7 @@ If you don't have FFmpeg installed, there are two ways to install it.
 
 **Install FFmpeg**:
 
-- Using a package manager:
+- Using a package manager (recommended):
     - [winget](https://docs.microsoft.com/en-us/windows/package-manager/winget/):
         - Open your terminal (cmd, powershell, etc.)
         - `winget install ffmpeg`
