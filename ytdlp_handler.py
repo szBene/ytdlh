@@ -194,6 +194,8 @@ def download_video(video_url: str, video_stream_id: str, audio_stream_id: str) -
     """
     global DOWNLOADER
 
+    # todo convert video codec to H.264 and audio codec to AAC for compatibility
+
     DOWNLOADER.params["format"] = f"{video_stream_id}+{audio_stream_id}"
     DOWNLOADER.params["requested_format"] = [video_stream_id, audio_stream_id]
     DOWNLOADER.__init__(DOWNLOADER.params)  # "reload", format selection does not work otherwise
