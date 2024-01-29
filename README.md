@@ -40,13 +40,34 @@ For example:
 ytdlh.bat "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 ```
 
+Run `ytdlh.bat --help` for info on the available options
+
 This command will download an mp4 video file into your Downloads directory. Its name will be the title of
 the video.
 
-ytdlh selects the best video and audio streams available, by bitrate. The codec of the video stream will
-not be converted automatically. This feature will be added in a [future update](#feature-updates).
+ytdlh selects the best video and audio streams available, based on bitrate. The codec of the video stream will
+not be converted automatically, you will have to do this manually. This feature will be added in a [future update]
+(#feature-updates).
 
-Run `ytdlh.bat --help` for info on the available options
+Since you already have FFmpeg installed, you can use it to **convert** the video stream to H.264, and the audio stream
+to AAC:
+
+- Open your terminal (cmd, powershell, etc.)
+- Navigate to the video file's directory: Use the `cd` command followed by the path of the directory where your video
+  file is located. ytdlh downloads the video into your “Downloads” folder by default. To get there in terminal, you
+  should run `cd Downloads`
+- Run the FFmpeg Command:
+
+```bash
+ffmpeg -i "input.mp4" -c:v libx264 -c:a aac "output.mp4"
+```
+
+- Replace input.mp4 with the name of your video file, and output.mp4 with the name you want for your converted video
+  file. This command tells FFmpeg to convert the video file using the H.264 video codec (libx264) and the AAC audio
+  codec (aac).
+- Wait for the conversion to complete, it might take a while, depending on the length of the video and your
+  computer. FFmpeg will display progress information in the terminal as it converts the video. Once the command has
+  finished running, you should find the converted video file in the same directory as the input file.
 
 If you would like to uninstall ytdlh, run `uninstall_ytdlh.bat` (you can also get this script from
 the [releases](https://github.com/szBene/ytdlh/releases)). This will remove the `ytdlh.bat` file and the `ytdlh`
@@ -74,17 +95,17 @@ If you don't have FFmpeg installed, there are two ways to install it.
         - Open your terminal (cmd, powershell, etc.)
         - Run `choco install ffmpeg`
     - [Scoop](https://scoop.sh/)
-        - Open your terminal (powershell)
+        - Open your terminal (cmd, powershell, etc.)
         - Run `scoop install ffmpeg`
     - **Notes**:
-        - winget should be installed by default on Windows 10 systems that have the 22H2 update installed. If you don't
-          seem to have it, you can follow
+        - **winget** should be installed by default on Windows 10 and 11 systems that have the 22H2 update installed. If
+          you don't seem to have it, you can follow
           Microsoft's [instructions](https://learn.microsoft.com/en-us/windows/package-manager/winget/#install-winget)
           on how to install it
-        - Chocolatey and Scoop are third-party package managers. If you don't have them installed, you can follow their
-          respective installation instructions on their websites:
-            - [Chocolatey](https://chocolatey.org/install)
-            - [Scoop](https://github.com/ScoopInstaller/Install?tab=readme-ov-file#installation)
+        - **Chocolatey** and **Scoop** are third-party package managers. If you don't have them installed, you can
+          follow their installation instructions on their websites:
+          [Chocolatey](https://chocolatey.org/install) |
+          [Scoop](https://github.com/ScoopInstaller/Install?tab=readme-ov-file#installation)
 - Manually:
     - Open [this](https://ffmpeg.org/download.html) page in your browser
     - Hover over or click on the Windows icon
